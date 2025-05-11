@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: news-pipeline
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SCHEDULER_INTERVAL
+        value: 30
+      - key: OUTPUT_DIR
+        value: outputs
+    autoDeploy: true
