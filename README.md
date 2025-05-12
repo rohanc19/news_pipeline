@@ -149,6 +149,22 @@ You can customize the pipeline by modifying the following files:
 
 - `config.py`: Add or modify RSS feeds, change LLM settings, adjust pipeline parameters
 - `llm_service.py`: Modify prompts to change the style of generated prediction markets
+- `strapi_service.py`: Adjust the Strapi integration to match your content types
+
+## Strapi Integration
+
+The pipeline can send generated prediction markets to a Strapi CMS instance:
+
+1. Set up a Strapi instance with a "prediction-markets" content type
+2. Create an API token in Strapi with appropriate permissions
+3. Add the following environment variables:
+   - `STRAPI_API_URL`: URL of your Strapi instance (e.g., https://your-strapi-instance.com)
+   - `STRAPI_API_TOKEN`: Your Strapi API token
+
+When the pipeline runs, it will:
+1. Generate prediction markets as usual
+2. Save them to a local JSON file
+3. Send each market to your Strapi instance via the API
 
 ## Deployment to Render
 
