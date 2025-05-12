@@ -166,6 +166,24 @@ When the pipeline runs, it will:
 2. Save them to a local JSON file
 3. Send each market to your Strapi instance via the API
 
+## LangChain Integration
+
+The pipeline includes optional LangChain integration for enhanced LLM interactions:
+
+1. Structured output parsing using Pydantic models
+2. Improved error handling and validation
+3. Fallback to direct API if LangChain processing fails
+
+To use LangChain:
+1. Install the required packages: `pip install langchain langchain-google-genai langchain-core`
+2. The pipeline will automatically use LangChain when available
+3. No additional configuration is needed
+
+Benefits of the LangChain integration:
+- More consistent output format
+- Better validation of prediction market data
+- Easier to extend with additional LLM capabilities
+
 ## Deployment to Render
 
 This project can be easily deployed to Render using the provided configuration files.

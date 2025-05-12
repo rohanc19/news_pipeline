@@ -186,6 +186,20 @@ def process_article_with_llm(article_data: Dict[str, Any]) -> Optional[Dict[str,
         Dictionary with prediction market content or None if processing failed
     """
     try:
+        # Try using LangChain first
+        try:
+            from langchain_integration import generate_prediction_market
+            logger.info("Using LangChain for prediction market generation")
+            prediction_data = generate_prediction_market(article_data, AVAILABLE_TAGS)
+            if prediction_data:
+                return prediction_data
+            logger.warning("LangChain generation failed, falling back to direct API")
+        except ImportError:
+            logger.info("LangChain not available, using direct API")
+        except Exception as e:
+            logger.warning(f"Error using LangChain: {str(e)}, falling back to direct API")
+
+        # Fall back to direct API if LangChain fails
         model = initialize_llm()
         prediction_data = generate_prediction_content(model, article_data)
 
