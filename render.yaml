@@ -3,7 +3,7 @@ services:
     name: news-pipeline
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: python app.py
     envVars:
       - key: GEMINI_API_KEY
         sync: false
@@ -12,7 +12,7 @@ services:
       - key: OUTPUT_DIR
         value: outputs
       - key: STRAPI_API_URL
-        sync: false
-      - key: STRAPI_API_TOKEN
-        sync: false
+        value: https://prediction-markets-api-gnuw.onrender.com
+      - key: PORT
+        value: 10000
     autoDeploy: true
