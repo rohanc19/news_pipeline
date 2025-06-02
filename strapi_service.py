@@ -23,7 +23,7 @@ class StrapiService:
         # Strapi CMS URL
         self.api_url = "https://prediction-markets-strapi.onrender.com"
         # Your Strapi API token
-        self.api_token = "c3ee4528f1a962949b1fecd2378a3090372a2b8f91557c877dc15be77621205782a06c7d233977f7bdd570e71893ca06f359f68faf6bc27793336d1846628e267449d3d30279e5bbc17916bad6cb1091a84203bf12546e269590b98de95da35ef12a963057e3d784dfffca1758d4a9a0ef74f3e239a70a261a9c939e44bdd7b1"
+        self.api_token = "544157839fbc3942aa75bf31b056699be956b647207938529424eca29f935c1dafcf02959ba3ecd12eaaef5ba935468777d8e41e18749721211187e1052579b81ebb3f54297ece3c787ed62d05f3b5292ea9dcedf70a4c5f609ea14bf203dfeeb41789e82b3d8ed48acc3f9ada7c9193bd63d6bf934f8a33d4bc451cb597c342"
         self.max_retries = 3
         self.retry_delay = 5  # seconds
         self.timeout = 10  # seconds
@@ -249,6 +249,19 @@ class StrapiService:
         }
 
         return formatted_data
+
+    def push_market_to_strapi(self, market_data: Dict[str, Any]) -> bool:
+        """
+        Alias for send_market method for backward compatibility.
+
+        Args:
+            market_data: Prediction market data
+
+        Returns:
+            True if successful, False otherwise
+        """
+        response = self.send_market(market_data)
+        return response is not None
 
 # Create a singleton instance
 strapi_service = StrapiService()
