@@ -59,27 +59,49 @@ def run_pipeline_manually():
     """Manually trigger the pipeline to run once."""
     try:
         # Import and run the pipeline
-        from run_full_pipeline_30_per_category import run_comprehensive_pipeline
+        import sys
+        import os
+        sys.path.append(os.getcwd())
+
+        print("🚀 Starting manual pipeline run...")
 
         # Run in a separate thread to avoid blocking
         def run_pipeline_thread():
             try:
+                print("📦 Importing pipeline module...")
+                from run_full_pipeline_30_per_category import run_comprehensive_pipeline
+
+                print("🔄 Executing pipeline...")
                 output_file, summary_file = run_comprehensive_pipeline()
                 print(f"✅ Manual pipeline run completed: {output_file}")
+
+            except ImportError as e:
+                print(f"❌ Import error: {str(e)}")
+                import traceback
+                traceback.print_exc()
+
             except Exception as e:
                 print(f"❌ Manual pipeline run failed: {str(e)}")
+                import traceback
+                traceback.print_exc()
 
         pipeline_thread = threading.Thread(target=run_pipeline_thread)
         pipeline_thread.daemon = True
         pipeline_thread.start()
 
+        print("✅ Pipeline thread started")
+
         return jsonify({
             "status": "success",
-            "message": "Pipeline started manually",
-            "note": "Check /status endpoint for progress"
+            "message": "Pipeline started manually with enhanced logging",
+            "note": "Check Render logs for detailed progress"
         })
 
     except Exception as e:
+        print(f"❌ Failed to start pipeline: {str(e)}")
+        import traceback
+        traceback.print_exc()
+
         return jsonify({
             "status": "error",
             "message": f"Failed to start pipeline: {str(e)}"
