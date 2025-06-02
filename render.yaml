@@ -7,7 +7,7 @@ services:
     startCommand: python app.py
     envVars:
       - key: GEMINI_API_KEY
-        sync: false
+        value: AIzaSyA9MA_u2p4nSfUTwfpo-shPpcodL6vZ4IE
       - key: SCHEDULER_INTERVAL
         value: 30
       - key: OUTPUT_DIR
