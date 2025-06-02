@@ -8,7 +8,7 @@ import json
 import time
 from typing import Dict, Any, List, Optional, Tuple
 import google.generativeai as genai
-from config import LLM_CONFIG, AVAILABLE_TAGS, PIPELINE_CONFIG
+from config import LLM_CONFIG, AVAILABLE_TAGS, CATEGORY_STRUCTURE, PIPELINE_CONFIG
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -58,6 +58,12 @@ def generate_prediction_content(model, article_data: Dict[str, Any], max_retries
     Returns:
         Dictionary with prediction market content or None if generation failed
     """
+    # Get relevant subcategories for the article's category
+    category = article_data.get('category', 'Trending')
+    relevant_subcategories = []
+    if category in CATEGORY_STRUCTURE:
+        relevant_subcategories = CATEGORY_STRUCTURE[category]['subcategories']
+
     prompt = f"""
 You are an expert at creating prediction market questions based on news articles.
 I'll provide you with a news article, and I need you to create a Kalshi-style prediction market question.
@@ -71,11 +77,17 @@ Source: {article_data['source']}
 Content:
 {article_data.get('processed_content', article_data.get('content', article_data.get('summary', '')))}
 
+CATEGORY CONTEXT:
+This article is categorized under "{category}". When selecting tags, prioritize subcategories from this category:
+{', '.join(relevant_subcategories) if relevant_subcategories else 'General subcategories'}
+
 Please create:
 1. A clear yes/no prediction question based on the article (title)
 2. A specific timeframe with a verifiable end date (endTime)
 3. A detailed explanation suitable for a financial prediction market (description)
 4. Select exactly 3 relevant tags from this list: {', '.join(AVAILABLE_TAGS)}
+   - Prioritize tags that match the article's category and subcategories
+   - Choose the most specific and relevant tags for the content
 
 Format your response as a JSON object with these fields:
 - title: The yes/no prediction question
@@ -128,9 +140,17 @@ JSON RESPONSE FORMAT ONLY:
                 time.sleep(1)
 
         except Exception as e:
-            logger.error(f"Error generating prediction content: {str(e)}")
-            retry_count += 1
-            time.sleep(2)
+            error_str = str(e).lower()
+            if "quota" in error_str or "rate limit" in error_str or "429" in str(e):
+                # Rate limit error - wait longer before retrying
+                wait_time = 60 + (retry_count * 30)  # Exponential backoff
+                logger.warning(f"Rate limit hit, waiting {wait_time} seconds before retry {retry_count + 1}/{max_retries}")
+                time.sleep(wait_time)
+                retry_count += 1
+            else:
+                logger.error(f"Error generating prediction content: {str(e)}")
+                retry_count += 1
+                time.sleep(5)
 
     logger.error(f"Failed to generate prediction content after {max_retries} retries")
     return None

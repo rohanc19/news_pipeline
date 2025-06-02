@@ -123,17 +123,39 @@ def save_output_to_file(output: Dict[str, Any], filename: str = OUTPUT_CONFIG["o
             json.dump(output, f, indent=2, ensure_ascii=False)
         logger.info(f"Output saved to {filename}")
 
-        # Send to Strapi if configured
+        # Send to Prediction Markets API if configured
         if strapi_service.is_configured():
             markets = output.get("eventsData", [{}])[0].get("markets", [])
             if markets:
-                logger.info(f"Sending {len(markets)} markets to Strapi")
-                successful = strapi_service.send_markets(markets)
-                logger.info(f"Successfully sent {len(successful)} markets to Strapi")
+                logger.info(f"Sending {len(markets)} markets to Prediction Markets API")
+
+                # Check API health first
+                is_healthy, health_message = strapi_service.check_api_health()
+                if not is_healthy:
+                    logger.warning(f"API health check failed: {health_message}")
+                    logger.warning("Will attempt to send markets anyway with retry logic")
+
+                # Try to send markets with retry logic
+                successful = strapi_service.send_markets(markets, retry_on_error=True)
+
+                if successful:
+                    logger.info(f"Successfully sent {len(successful)} out of {len(markets)} markets to Prediction Markets API")
+                else:
+                    logger.error("Failed to send any markets to Prediction Markets API")
+
+                    # Save failed markets to a backup file for later retry
+                    backup_file = f"{os.path.splitext(filename)[0]}_failed_api_send.json"
+                    try:
+                        with open(backup_file, 'w', encoding='utf-8') as f:
+                            json.dump({"markets": markets}, f, indent=2, ensure_ascii=False)
+                        logger.info(f"Saved failed markets to backup file: {backup_file}")
+                        logger.info(f"You can retry sending these markets later when the API is available")
+                    except Exception as e:
+                        logger.error(f"Error saving backup file: {str(e)}")
             else:
-                logger.warning("No markets found to send to Strapi")
+                logger.warning("No markets found to send to Prediction Markets API")
         else:
-            logger.info("Strapi integration not configured, skipping")
+            logger.info("Prediction Markets API integration not configured, skipping")
 
     except Exception as e:
         logger.error(f"Error saving output to file: {str(e)}")

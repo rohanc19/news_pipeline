@@ -11,49 +11,179 @@ class FeedConfig(BaseModel):
     category: str
     fallback_urls: Optional[List[str]] = None
 
-# List of RSS feeds with their categories
+# List of RSS feeds with their categories (tested and working feeds only)
 RSS_FEEDS = [
-    # Politics
-    FeedConfig(url="https://feeds.feedburner.com/ndtvnews-india-news", category="Politics"),
+    # TRENDING - Major breaking news sources (2/3 working)
+    FeedConfig(url="https://feeds.bbci.co.uk/news/rss.xml", category="Trending"),
+    FeedConfig(url="https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms", category="Trending"),
 
-    # Culture
-    FeedConfig(url="https://www.rollingstone.com/culture/feed/", category="Culture"),
+    # POLITICS - Indian and international political news (2/3 working)
+    FeedConfig(url="https://www.thehindu.com/news/national/feeder/default.rss", category="Politics"),
+    FeedConfig(url="https://indianexpress.com/section/india/feed/", category="Politics"),
 
-    # Crypto
+    # ECONOMY - Economic and financial news (2/3 working)
+    FeedConfig(url="https://economictimes.indiatimes.com/rssfeedstopstories.cms", category="Economy"),
+    FeedConfig(url="https://www.business-standard.com/rss/economy-policy-104.rss", category="Economy"),
+
+    # CRYPTO - Cryptocurrency news (3/3 working - 100% success!)
     FeedConfig(url="https://cointelegraph.com/rss", category="Crypto"),
+    FeedConfig(url="https://coindesk.com/arc/outboundfeeds/rss/", category="Crypto"),
+    FeedConfig(url="https://decrypt.co/feed", category="Crypto"),
 
-    # Economics
-    FeedConfig(url="https://www.livemint.com/rss/economy", category="Economics"),
+    # TECH - Technology news (2/4 working)
+    FeedConfig(url="https://techcrunch.com/feed/", category="Tech"),
+    FeedConfig(url="https://www.wired.com/feed/rss", category="Tech"),
 
-    # Companies
-    FeedConfig(url="https://techcrunch.com/feed/", category="Companies"),
-
-    # World
+    # WORLD - International news (2/3 working)
+    FeedConfig(url="https://feeds.bbci.co.uk/news/world/rss.xml", category="World"),
     FeedConfig(url="https://www.aljazeera.com/xml/rss/all.xml", category="World"),
 
-    # Additional working feeds
-    FeedConfig(url="https://rss.nytimes.com/services/xml/rss/nyt/World.xml", category="World"),
-    FeedConfig(url="https://feeds.bbci.co.uk/news/world/rss.xml", category="World"),
-    FeedConfig(url="https://www.theguardian.com/world/rss", category="World"),
+    # CULTURE - Entertainment and cultural news (2/3 working)
+    FeedConfig(url="https://www.rollingstone.com/music/feed/", category="Culture"),
+    FeedConfig(url="https://variety.com/feed/", category="Culture"),
 
-    FeedConfig(url="https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", category="Tech & Science"),
-    FeedConfig(url="https://feeds.wired.com/wired/index", category="Tech & Science"),
+    # SPORTS - Sports news (3/3 working - 100% success!)
+    FeedConfig(url="https://feeds.bbci.co.uk/sport/rss.xml", category="Sports"),
+    FeedConfig(url="https://www.espn.com/espn/rss/news", category="Sports"),
+    FeedConfig(url="https://timesofindia.indiatimes.com/rssfeeds/4719148.cms", category="Sports"),
 
-    FeedConfig(url="https://rss.nytimes.com/services/xml/rss/nyt/Business.xml", category="Companies"),
+    # EDUCATION - Educational news and updates (2/3 working)
+    FeedConfig(url="https://www.thehindu.com/education/feeder/default.rss", category="Education"),
+    FeedConfig(url="https://indianexpress.com/section/education/feed/", category="Education"),
 
-    FeedConfig(url="https://www.economist.com/finance-and-economics/rss.xml", category="Economics"),
+    # BUSINESS - Business and corporate news (2/3 working)
+    FeedConfig(url="https://economictimes.indiatimes.com/rssfeedstopstories.cms", category="Business"),
+    FeedConfig(url="https://www.business-standard.com/rss/companies-101.rss", category="Business"),
+
+    # ENVIRONMENT - Environmental and climate news (1/3 working)
+    FeedConfig(url="https://www.theguardian.com/environment/rss", category="Environment"),
+    # Adding backup environment feeds
+    FeedConfig(url="https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", category="Environment"),
 ]
 
-# Available tags for market categorization
+# Available tags for market categorization (updated with new subcategories)
 AVAILABLE_TAGS = [
+    # Trending subcategories
+    "Breaking News", "Lok Sabha Elections", "IPL 2025", "Budget 2025", "Startup News", "Geopolitics",
+    "Stock Market", "Crypto Prices", "India vs Pakistan", "AI in India", "Weather Alerts", "Bollywood",
+    "South Cinema", "New Parliament", "NEET/JEE Updates",
+
+    # Politics subcategories
+    "State Elections", "Cabinet Decisions", "Parliament Sessions", "Policies and Bills", "Supreme Court",
+    "Election Commission", "Opposition Updates", "PM Modi", "India-US Relations", "India-China Tensions",
+
+    # Economy subcategories
+    "RBI Announcements", "Budget", "GST & Taxes", "Inflation", "Unemployment", "Banking Sector",
+    "Startup Funding", "Forex & Trade", "Real Estate",
+
+    # Crypto subcategories
+    "Bitcoin", "Ethereum", "Memecoins", "Crypto Regulations India", "RBI on Crypto", "Crypto Scams",
+    "Stablecoins", "Airdrops", "NFTs",
+
+    # Tech subcategories
+    "AI", "ISRO Launches", "Startups", "Government Apps", "Cybersecurity", "Meta vs Competition",
+    "Space Missions", "5G Rollout", "ONDC", "Digital India",
+
+    # World subcategories
+    "Middle East Conflict", "Global Elections", "Russia-Ukraine War", "China-Taiwan", "UN Updates",
+    "US Politics", "Africa Development", "Climate Agreements", "Pakistan Crisis",
+
+    # Culture subcategories
+    "Tollywood", "Celebrity Gossip", "Music Awards", "Reality TV", "Viral Trends", "Social Media Buzz",
+    "Memes", "OTT Shows", "Religion & Festivals",
+
+    # Sports subcategories
+    "Cricket", "IPL", "Indian Football", "Olympics", "Kabaddi League", "Chess", "Badminton",
+    "Wrestling", "Formula 1", "World Cup",
+
+    # Education subcategories
+    "NEET", "JEE", "CBSE Board", "UPSC", "UGC-NET", "Study Abroad", "Govt Jobs", "Online Courses",
+    "Scholarships",
+
+    # Business subcategories
+    "Tata", "Reliance", "Adani", "Startup Acquisitions", "IPO News", "FMCG", "Automobiles",
+    "Tech Giants", "E-commerce",
+
+    # Environment subcategories
+    "Air Pollution", "Water Crisis", "Wildlife", "Climate Change", "Heatwaves", "Recycling",
+    "Forest Fires", "Plastic Ban",
+
+    # General categories (keeping some original ones for compatibility)
     "Politics", "Sports", "Business", "Finance", "Entertainment", "Technology", "Science", "Health",
-    "World Affairs", "Climate", "Crypto", "Economy", "Companies", "Consumer Trends", "Travel",
-    "Education", "Energy", "Environment", "Weather", "Law", "Government", "Elections", "Stock Market",
-    "Startups", "Public Figures", "Awards", "Festivals", "Innovation", "Gadgets", "Artificial Intelligence",
-    "Space", "Mergers & Acquisitions", "Real Estate", "Agriculture", "Food & Beverage", "Defense & Military",
-    "Currency", "Trade", "Pandemics", "Employment", "Media & News", "Transportation", "Social Media Trends",
-    "IPOs", "Court Cases", "Natural Disasters", "Religion", "International Relations", "Diplomacy", "Conflict"
+    "World Affairs", "Climate", "Crypto", "Economy", "Education", "Environment"
 ]
+
+# Category structure for prediction markets
+CATEGORY_STRUCTURE = {
+    "Trending": {
+        "subcategories": [
+            "All", "Breaking News", "Lok Sabha Elections", "IPL 2025", "Budget 2025", "Startup News",
+            "Geopolitics", "Stock Market", "Crypto Prices", "India vs Pakistan", "AI in India",
+            "Weather Alerts", "Bollywood", "South Cinema", "New Parliament", "NEET/JEE Updates"
+        ]
+    },
+    "Politics": {
+        "subcategories": [
+            "All", "Lok Sabha Elections", "State Elections", "Cabinet Decisions", "Parliament Sessions",
+            "Policies and Bills", "Supreme Court", "Election Commission", "Opposition Updates", "PM Modi",
+            "Geopolitics", "India-US Relations", "India-China Tensions"
+        ]
+    },
+    "Economy": {
+        "subcategories": [
+            "All", "RBI Announcements", "Budget", "Stock Market", "GST & Taxes", "Inflation",
+            "Unemployment", "Banking Sector", "Startup Funding", "Forex & Trade", "Real Estate"
+        ]
+    },
+    "Crypto": {
+        "subcategories": [
+            "All", "Bitcoin", "Ethereum", "Memecoins", "Crypto Regulations India", "RBI on Crypto",
+            "Crypto Scams", "Stablecoins", "Airdrops", "NFTs"
+        ]
+    },
+    "Tech": {
+        "subcategories": [
+            "All", "AI", "ISRO Launches", "Startups", "Government Apps", "Cybersecurity",
+            "Meta vs Competition", "Space Missions", "5G Rollout", "ONDC", "Digital India"
+        ]
+    },
+    "World": {
+        "subcategories": [
+            "All", "Middle East Conflict", "Global Elections", "Russia-Ukraine War", "China-Taiwan",
+            "UN Updates", "US Politics", "Africa Development", "Climate Agreements", "Pakistan Crisis"
+        ]
+    },
+    "Culture": {
+        "subcategories": [
+            "All", "Bollywood", "Tollywood", "Celebrity Gossip", "Music Awards", "Reality TV",
+            "Viral Trends", "Social Media Buzz", "Memes", "OTT Shows", "Religion & Festivals"
+        ]
+    },
+    "Sports": {
+        "subcategories": [
+            "All", "Cricket", "IPL", "Indian Football", "Olympics", "Kabaddi League", "Chess",
+            "Badminton", "Wrestling", "Formula 1", "World Cup"
+        ]
+    },
+    "Education": {
+        "subcategories": [
+            "All", "NEET", "JEE", "CBSE Board", "UPSC", "UGC-NET", "Study Abroad", "Govt Jobs",
+            "Online Courses", "Scholarships"
+        ]
+    },
+    "Business": {
+        "subcategories": [
+            "All", "Tata", "Reliance", "Adani", "Startup Acquisitions", "IPO News", "FMCG",
+            "Automobiles", "Tech Giants", "E-commerce"
+        ]
+    },
+    "Environment": {
+        "subcategories": [
+            "All", "Air Pollution", "Water Crisis", "Wildlife", "Climate Change", "Heatwaves",
+            "Recycling", "Forest Fires", "Plastic Ban"
+        ]
+    }
+}
 
 # LLM Configuration
 LLM_CONFIG = {
@@ -66,10 +196,12 @@ LLM_CONFIG = {
 
 # Pipeline Configuration
 PIPELINE_CONFIG = {
-    "recent_days": 5,  # Articles from the past 5 days
-    "markets_per_category": 30,  # 30 unique markets per category
+    "recent_days": 7,  # Articles from the past 7 days (more articles)
+    "markets_per_category": 30,  # 30 markets per category as requested
     "max_retries": 3,  # Maximum retries for API calls
     "timeout": 30,  # Timeout for HTTP requests in seconds
+    "rate_limit_delay": 4.5,  # Delay between API calls (seconds) for free tier (15 req/min = 4s interval)
+    "max_concurrent_workers": 1,  # Sequential processing for free tier
 }
 
 # Output Configuration

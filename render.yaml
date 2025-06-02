@@ -2,6 +2,7 @@ services:
   - type: web
     name: news-pipeline
     env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
     envVars:
@@ -12,7 +13,7 @@ services:
       - key: OUTPUT_DIR
         value: outputs
       - key: STRAPI_API_URL
-        value: https://prediction-markets-api-gnuw.onrender.com
+        value: https://prediction-markets-strapi.onrender.com
       - key: PORT
         value: 10000
     autoDeploy: true

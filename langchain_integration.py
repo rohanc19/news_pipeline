@@ -14,6 +14,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 
+from config import CATEGORY_STRUCTURE
+
 # Load environment variables
 load_dotenv()
 
@@ -31,7 +33,7 @@ class PredictionMarket(BaseModel):
     description: str = Field(description="Detailed explanation of the prediction market")
     endTime: str = Field(description="ISO format end time for the prediction (e.g., 2025-12-31T23:59:59Z)")
     tags: List[str] = Field(description="List of 3 relevant tags for the prediction market")
-    
+
     @validator('endTime')
     def validate_end_time(cls, v):
         """Validate that endTime is in ISO format."""
@@ -44,7 +46,7 @@ class PredictionMarket(BaseModel):
             return v
         except Exception as e:
             raise ValueError(f"Invalid endTime format: {str(e)}")
-    
+
     @validator('tags')
     def validate_tags(cls, v):
         """Validate that there are exactly 3 tags."""
@@ -55,14 +57,14 @@ class PredictionMarket(BaseModel):
 def create_langchain_llm():
     """
     Create a LangChain LLM instance using Google Generative AI.
-    
+
     Returns:
         LangChain LLM instance
     """
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable not set")
-    
+
     llm = ChatGoogleGenerativeAI(
         model="gemini-1.5-flash",
         google_api_key=api_key,
@@ -71,22 +73,22 @@ def create_langchain_llm():
         top_k=40,
         max_output_tokens=1024,
     )
-    
+
     return llm
 
 def create_prediction_market_chain():
     """
     Create a LangChain chain for generating prediction markets.
-    
+
     Returns:
         LangChain chain for generating prediction markets
     """
     # Create the LLM
     llm = create_langchain_llm()
-    
+
     # Create the output parser
     parser = JsonOutputParser(pydantic_object=PredictionMarket)
-    
+
     # Create the prompt template
     prompt = ChatPromptTemplate.from_template("""
 You are an expert at creating prediction market questions based on news articles.
@@ -101,40 +103,52 @@ Source: {source}
 Content:
 {content}
 
+CATEGORY CONTEXT:
+This article is categorized under "{category}". When selecting tags, prioritize subcategories from this category:
+{relevant_subcategories}
+
 Please create:
 1. A clear yes/no prediction question based on the article (title)
 2. A specific timeframe with a verifiable end date (endTime) in ISO format (YYYY-MM-DDThh:mm:ssZ)
 3. A detailed explanation suitable for a financial prediction market (description)
 4. Select exactly 3 relevant tags from this list: {available_tags}
+   - Prioritize tags that match the article's category and subcategories
+   - Choose the most specific and relevant tags for the content
 
 {format_instructions}
 """)
-    
+
     # Create the chain
     chain = prompt | llm | parser
-    
+
     return chain
 
 def generate_prediction_market(article_data: Dict[str, Any], available_tags: List[str]) -> Optional[Dict[str, Any]]:
     """
     Generate a prediction market using LangChain.
-    
+
     Args:
         article_data: Article data dictionary
         available_tags: List of available tags
-        
+
     Returns:
         Prediction market data or None if generation failed
     """
     try:
         # Create the chain
         chain = create_prediction_market_chain()
-        
+
         # Prepare the input
-        content = article_data.get('processed_content', 
-                   article_data.get('content', 
+        content = article_data.get('processed_content',
+                   article_data.get('content',
                    article_data.get('summary', '')))
-        
+
+        # Get relevant subcategories for the article's category
+        category = article_data.get('category', 'Trending')
+        relevant_subcategories = []
+        if category in CATEGORY_STRUCTURE:
+            relevant_subcategories = CATEGORY_STRUCTURE[category]['subcategories']
+
         # Run the chain
         result = chain.invoke({
             "title": article_data["title"],
@@ -143,9 +157,10 @@ def generate_prediction_market(article_data: Dict[str, Any], available_tags: Lis
             "source": article_data["source"],
             "content": content,
             "available_tags": ", ".join(available_tags),
+            "relevant_subcategories": ", ".join(relevant_subcategories) if relevant_subcategories else "General subcategories",
             "format_instructions": JsonOutputParser(pydantic_object=PredictionMarket).get_format_instructions()
         })
-        
+
         # Add the original article data
         result["article"] = {
             "title": article_data["title"],
@@ -154,10 +169,10 @@ def generate_prediction_market(article_data: Dict[str, Any], available_tags: Lis
             "source": article_data["source"],
             "category": article_data["category"]
         }
-        
+
         logger.info(f"Successfully generated prediction market: {result['title']}")
         return result
-        
+
     except Exception as e:
         logger.error(f"Error generating prediction market with LangChain: {str(e)}")
         return None
